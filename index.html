@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A+ Finance Year End Party — Photobooth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Miss+Fajardose&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --maroon-deep: #240508;
+      --maroon-dark: #3e090e;
+      --maroon-main: #5c1017;
+      --maroon-accent: #7a1922;
+      --beige-light: #f6eedc;
+      --beige-gold: #e8d5a7;
+      --beige-muted: #c9b58e;
+      --white: #ffffff;
+      --surface: rgba(45, 7, 11, 0.78);
+      --border-soft: rgba(246, 238, 220, 0.18);
+      --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(122, 25, 34, 0.45), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(232, 213, 167, 0.12), transparent 40%),
+        linear-gradient(160deg, #1b0306 0%, #3a080d 50%, #1c0406 100%);
+      color: var(--beige-light);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Preload Miss Fajardose for canvas rendering */
+    .font-preloader {
+      font-family: "Miss Fajardose", cursive;
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Header */
+    .hero-header {
+      text-align: center;
+      padding: 28px 20px 18px;
+      border-bottom: 1px solid var(--border-soft);
+      background: rgba(20, 3, 5, 0.45);
+      backdrop-filter: blur(10px);
+    }
+
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(232, 213, 167, 0.35);
+      background: rgba(232, 213, 167, 0.08);
+      color: var(--beige-gold);
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .hero-title {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(2rem, 4.5vw, 3.1rem);
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+    }
+
+    .hero-title span {
+      color: var(--beige-gold);
+    }
+
+    .hero-meta {
+      margin-top: 8px;
+      font-size: 0.95rem;
+      color: var(--beige-muted);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .dot-sep {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--beige-gold);
+      display: inline-block;
+    }
+
+    /* Main Layout */
+    .booth-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 26px 20px 56px;
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .booth-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(12px);
+    }
+
+    .panel-title {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--beige-light);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .step-pill {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(246, 238, 220, 0.1);
+      color: var(--beige-gold);
+      border: 1px solid rgba(246, 238, 220, 0.16);
+    }
+
+    /* Camera Stage */
+    .camera-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #120204;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid rgba(232, 213, 167, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #cameraVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: filter 0.2s ease;
+    }
+
+    #cameraVideo.mirrored {
+      transform: scaleX(-1);
+    }
+
+    .camera-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      background: radial-gradient(circle, rgba(92, 16, 23, 0.45), rgba(18, 2, 4, 0.95));
+      gap: 12px;
+      z-index: 2;
+    }
+
+    .camera-placeholder.hidden {
+      display: none;
+    }
+
+    .countdown-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(18, 2, 4, 0.35);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 5;
+    }
+
+    .countdown-overlay.active {
+      opacity: 1;
+    }
+
+    .countdown-number {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(4.5rem, 10vw, 7rem);
+      font-weight: 700;
+      color: var(--white);
+      text-shadow: 0 6px 30px rgba(0, 0, 0, 0.75);
+      line-height: 1;
+    }
+
+    .countdown-sub {
+      font-size: 0.9rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--beige-gold);
+      margin-top: 8px;
+      background: rgba(20, 3, 5, 0.65);
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .flash-overlay {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    .flash-overlay.flash {
+      animation: flashAnim 0.4s ease-out;
+    }
+
+    @keyframes flashAnim {
+      0% { opacity: 0.95; }
+      100% { opacity: 0; }
+    }
+
+    .shot-progress-bar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .shot-pip {
+      flex: 1;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.25);
+      transition: background 0.25s ease;
+    }
+
+    .shot-pip.done {
+      background: var(--beige-gold);
+    }
+
+    .shot-pip.active {
+      background: var(--white);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Controls */
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      align-items: center;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border-soft);
+      background: rgba(246, 238, 220, 0.08);
+      color: var(--beige-light);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.18s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: rgba(246, 238, 220, 0.16);
+      border-color: rgba(232, 213, 167, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f3e5ab 0%, #dcc182 100%);
+      color: #2b0609;
+      border-color: #f6eedc;
+      font-weight: 700;
+      box-shadow: 0 8px 22px rgba(232, 213, 167, 0.22);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #fff4cb 0%, #e8d095 100%);
+      color: #1e0305;
+    }
+
+    .btn-danger {
+      background: rgba(155, 28, 38, 0.38);
+      border-color: rgba(255, 160, 160, 0.3);
+    }
+
+    .btn-sm {
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      border-radius: 10px;
+    }
+
+    .toolbar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--beige-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    select.select-input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: rgba(24, 4, 6, 0.85);
+      color: var(--beige-light);
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    /* Captured Slots Thumbnails */
+    .slots-section {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .slots-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+      color: var(--beige-muted);
+    }
+
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 540px) {
+      .slots-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .slot-card {
+      position: relative;
+      aspect-ratio: 1.4 / 1;
+      border-radius: 10px;
+      border: 1px dashed rgba(232, 213, 167, 0.35);
+      background: rgba(18, 2, 4, 0.55);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      color: var(--beige-muted);
+    }
+
+    .slot-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .slot-actions {
+      position: absolute;
+      inset: auto 4px 4px 4px;
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .slot-card:hover .slot-actions,
+    .slot-card.empty .slot-actions {
+      opacity: 1;
+    }
+
+    .mini-btn {
+      background: rgba(20, 3, 5, 0.85);
+      color: var(--beige-light);
+      border: 1px solid rgba(246, 238, 220, 0.25);
+      border-radius: 6px;
+      padding: 3px 7px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .mini-btn:hover {
+      background: var(--maroon-accent);
+    }
+
+    /* Frame Picker */
+    .frame-picker {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .frame-option {
+      border: 2px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 8px;
+      background: rgba(22, 3, 5, 0.6);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s ease;
+      color: var(--beige-light);
+    }
+
+    .frame-option:hover {
+      border-color: rgba(232, 213, 167, 0.5);
+    }
+
+    .frame-option.selected {
+      border-color: var(--beige-gold);
+      background: rgba(232, 213, 167, 0.14);
+      box-shadow: 0 0 0 2px rgba(232, 213, 167, 0.2);
+    }
+
+    .frame-swatch {
+      height: 52px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .swatch-velvet {
+      background: repeating-linear-gradient(
+        90deg,
+        #3a070b 0px,
+        #560e14 3px,
+        #280407 6px
+      );
+    }
+    .swatch-velvet::after {
+      content: "★";
+      position: absolute;
+      right: 8px;
+      top: 10px;
+      color: #f4ead5;
+      font-size: 18px;
+    }
+
+    .swatch-gingham {
+      background-color: #6b151a;
+      background-image:
+        linear-gradient(90deg, rgba(226, 204, 174, 0.35) 50%, transparent 50%),
+        linear-gradient(rgba(226, 204, 174, 0.35) 50%, transparent 50%);
+      background-size: 16px 16px;
+    }
+    .swatch-gingham::after {
+      content: "✦";
+      position: absolute;
+      left: 8px;
+      bottom: 6px;
+      color: #f2cf66;
+      font-size: 16px;
+    }
+
+    .swatch-lace {
+      background: repeating-linear-gradient(
+        90deg,
+        #3a070b 0px,
+        #560e14 3px,
+        #280407 6px
+      );
+    }
+    .swatch-lace::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 34%;
+      background: repeating-radial-gradient(
+        circle at 6px 8px,
+        rgba(245, 240, 232, 0.72) 0,
+        rgba(245, 240, 232, 0.72) 3px,
+        transparent 4px,
+        transparent 8px
+      );
+      border-right: 1px dashed rgba(255, 255, 255, 0.45);
+    }
+
+    .frame-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    /* Strip Preview */
+    .strip-preview-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .strip-canvas-holder {
+      background: rgba(14, 2, 3, 0.65);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 14px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    #stripCanvas {
+      width: 100%;
+      max-width: 270px;
+      height: auto;
+      border-radius: 4px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
+      display: block;
+    }
+
+    .download-actions {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .download-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Session Gallery */
+    .gallery-section {
+      max-width: 1280px;
+      margin: 0 auto 50px;
+      padding: 0 20px;
+    }
+
+    .gallery-grid {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 12px 4px;
+    }
+
+    .gallery-item {
+      flex: 0 0 auto;
+      width: 125px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      border-radius: 6px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-soft);
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    .status-toast {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #f3e5ab;
+      color: #2b0609;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 50;
+    }
+
+    .status-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <span class="font-preloader" aria-hidden="true">Finance Year End Party</span>
+
+  <header class="hero-header">
+    <div class="event-badge">✦ Official Online Photobooth ✦</div>
+    <h1 class="hero-title"><span>A+</span> Finance Year End Party</h1>
+    <div class="hero-meta">
+      <span>November 21, 2026</span>
+      <span class="dot-sep"></span>
+      <span>Subic, Zambales</span>
+    </div>
+  </header>
+
+  <main class="booth-container">
+    <!-- Left Column: Camera & Shots -->
+    <section class="panel">
+      <div class="panel-title">
+        <span>Strike a Pose</span>
+        <span class="step-pill">Step 1 • 4 Shots</span>
+      </div>
+
+      <div class="camera-stage">
+        <video id="cameraVideo" class="mirrored" autoplay playsinline muted></video>
+
+        <div class="shot-progress-bar" id="shotProgressBar">
+          <div class="shot-pip" data-pip="0"></div>
+          <div class="shot-pip" data-pip="1"></div>
+          <div class="shot-pip" data-pip="2"></div>
+          <div class="shot-pip" data-pip="3"></div>
+        </div>
+
+        <div class="camera-placeholder" id="cameraPlaceholder">
+          <div style="font-size: 2rem;">📸</div>
+          <h3 style="color: var(--white); font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;">
+            Ready for the Booth?
+          </h3>
+          <p style="font-size: 0.9rem; color: var(--beige-muted); max-width: 360px;">
+            Turn on your camera to snap a 4-photo strip, or upload photos directly from your device.
+          </p>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 6px;">
+            <button class="btn btn-primary" id="startCameraBtn">Enable Camera</button>
+            <button class="btn" id="uploadAllBtn">Upload 4 Photos</button>
+          </div>
+        </div>
+
+        <div class="countdown-overlay" id="countdownOverlay">
+          <div class="countdown-number" id="countdownNumber">3</div>
+          <div class="countdown-sub" id="countdownSub">Get Ready!</div>
+        </div>
+
+        <div class="flash-overlay" id="flashOverlay"></div>
+      </div>
+
+      <div class="controls-row">
+        <button class="btn btn-primary" id="startBoothBtn" disabled>
+          ▶ Start 4-Shot Session
+        </button>
+        <button class="btn" id="snapSingleBtn" disabled>
+          📷 Snap Next Empty Slot
+        </button>
+        <button class="btn" id="switchCameraBtn" style="display: none;">
+          🔄 Flip Camera
+        </button>
+        <button class="btn btn-danger" id="clearAllBtn">
+          ↺ Reset All
+        </button>
+      </div>
+
+      <div class="toolbar-grid">
+        <div class="field-group">
+          <label for="timerSelect">Timer Delay</label>
+          <select id="timerSelect" class="select-input">
+            <option value="3" selected>3 Seconds</option>
+            <option value="5">5 Seconds</option>
+            <option value="0">Instant (No Delay)</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="filterSelect">Photo Filter</label>
+          <select id="filterSelect" class="select-input">
+            <option value="none" selected>Natural</option>
+            <option value="warm">Warm Subic Glow</option>
+            <option value="vintage">Vintage Film</option>
+            <option value="bw">Classic B&amp;W</option>
+            <option value="crisp">Bright &amp; Crisp</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="mirrorToggleBtn">Selfie Mirror</label>
+          <button id="mirrorToggleBtn" class="btn btn-sm" style="width: 100%; height: 39px;">
+            Mirror: ON
+          </button>
+        </div>
+      </div>
+
+      <div class="slots-section">
+        <div class="slots-header">
+          <span>Your 4 Photos (click Upload or Retake on any slot)</span>
+          <span id="shotCountText">0 / 4 filled</span>
+        </div>
+        <div class="slots-grid" id="slotsGrid"></div>
+      </div>
+    </section>
+
+    <!-- Right Column: Frame Selection & Strip Preview -->
+    <aside class="panel">
+      <div class="panel-title">
+        <span>Choose Frame &amp; Save</span>
+        <span class="step-pill">Step 2 • Print Strip</span>
+      </div>
+
+      <div class="frame-picker" id="framePicker">
+        <button class="frame-option selected" data-frame="velvet-stars" type="button">
+          <div class="frame-swatch swatch-velvet"></div>
+          <div class="frame-label">Finance YEP 1</div>
+        </button>
+
+        <button class="frame-option" data-frame="gingham-gold" type="button">
+          <div class="frame-swatch swatch-gingham"></div>
+          <div class="frame-label">Finance YEP 2</div>
+        </button>
+
+        <button class="frame-option" data-frame="corduroy-lace" type="button">
+          <div class="frame-swatch swatch-lace"></div>
+          <div class="frame-label">Finance YEP 3</div>
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+        <button class="btn btn-sm" id="uploadCustomOverlayBtn" style="flex: 1;">
+          🖼 + Custom PNG Overlay
+        </button>
+        <button class="btn btn-sm" id="clearCustomOverlayBtn" style="display: none;">
+          Remove Custom
+        </button>
+      </div>
+
+      <div class="strip-preview-wrap">
+        <div class="strip-canvas-holder">
+          <canvas id="stripCanvas" width="600" height="1800"></canvas>
+        </div>
+
+        <div class="download-actions">
+          <button class="btn btn-primary" id="downloadStripBtn">
+            ⬇ Download Strip
+          </button>
+          <button class="btn" id="shareStripBtn">
+            📤 Share / Save
+          </button>
+        </div>
+
+        <button class="btn btn-sm" id="saveToGalleryBtn" style="width: 100%;">
+          ★ Pin to Party Session Gallery
+        </button>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Session Gallery -->
+  <section class="gallery-section" id="gallerySection" style="display: none;">
+    <div class="panel">
+      <div class="panel-title">
+        <span>Party Session Gallery</span>
+        <span class="step-pill" id="galleryCount">0 Strips</span>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </section>
+
+  <!-- Hidden file inputs -->
+  <input type="file" id="slotUploadInput" class="hidden-input" accept="image/*" />
+  <input type="file" id="batchUploadInput" class="hidden-input" accept="image/*" multiple />
+  <input type="file" id="customFrameInput" class="hidden-input" accept="image/png,image/*" />
+
+  <div class="status-toast" id="statusToast">Saved!</div>
+
+  <script>
+    (() => {
+      // Strip canvas dimensions (2x6 inch @ 300dpi ratio)
+      const STRIP_W = 600;
+      const STRIP_H = 1800;
+
+      // Photo slot geometry matching the 3 frame designs
+      const SLOT_BOXES = [
+        { x: 60, y: 100, w: 480, h: 348, border: 12 },
+        { x: 60, y: 478, w: 480, h: 348, border: 12 },
+        { x: 60, y: 856, w: 480, h: 348, border: 12 },
+        { x: 60, y: 1234, w: 480, h: 348, border: 12 }
+      ];
+
+      // State
+      const state = {
+        photos: [null, null, null, null],
+        selectedFrame: "velvet-stars",
+        customOverlayImg: null,
+        filter: "none",
+        mirrored: true,
+        facingMode: "user",
+        stream: null,
+        isCapturingSequence: false,
+        uploadTargetSlot: 0,
+        gallery: []
+      };
+
+      // DOM refs
+      const video = document.getElementById("cameraVideo");
+      const cameraPlaceholder = document.getElementById("cameraPlaceholder");
+      const startCameraBtn = document.getElementById("startCameraBtn");
+      const uploadAllBtn = document.getElementById("uploadAllBtn");
+      const startBoothBtn = document.getElementById("startBoothBtn");
+      const snapSingleBtn = document.getElementById("snapSingleBtn");
+      const switchCameraBtn = document.getElementById("switchCameraBtn");
+      const clearAllBtn = document.getElementById("clearAllBtn");
+      const timerSelect = document.getElementById("timerSelect");
+      const filterSelect = document.getElementById("filterSelect");
+      const mirrorToggleBtn = document.getElementById("mirrorToggleBtn");
+      const countdownOverlay = document.getElementById("countdownOverlay");
+      const countdownNumber = document.getElementById("countdownNumber");
+      const countdownSub = document.getElementById("countdownSub");
+      const flashOverlay = document.getElementById("flashOverlay");
+      const slotsGrid = document.getElementById("slotsGrid");
+      const shotCountText = document.getElementById("shotCountText");
+      const framePicker = document.getElementById("framePicker");
+      const stripCanvas = document.getElementById("stripCanvas");
+      const ctx = stripCanvas.getContext("2d");
+      const downloadStripBtn = document.getElementById("downloadStripBtn");
+      const shareStripBtn = document.getElementById("shareStripBtn");
+      const saveToGalleryBtn = document.getElementById("saveToGalleryBtn");
+      const slotUploadInput = document.getElementById("slotUploadInput");
+      const batchUploadInput = document.getElementById("batchUploadInput");
+      const customFrameInput = document.getElementById("customFrameInput");
+      const uploadCustomOverlayBtn = document.getElementById("uploadCustomOverlayBtn");
+      const clearCustomOverlayBtn = document.getElementById("clearCustomOverlayBtn");
+      const gallerySection = document.getElementById("gallerySection");
+      const galleryGrid = document.getElementById("galleryGrid");
+      const galleryCount = document.getElementById("galleryCount");
+      const statusToast = document.getElementById("statusToast");
+
+      // Toast helper
+      let toastTimer = null;
+      function showToast(msg) {
+        statusToast.textContent = msg;
+        statusToast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => statusToast.classList.remove("show"), 2600);
+      }
+
+      // Synthesized shutter sound via Web Audio API
+      function playShutterSound() {
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const audioCtx = new AudioCtx();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.1);
+        } catch (_) {}
+      }
+
+      function getCssFilter(name) {
+        switch (name) {
+          case "warm":
+            return "sepia(0.22) saturate(1.22) contrast(1.04) brightness(1.04)";
+          case "vintage":
+            return "sepia(0.35) contrast(1.12) brightness(0.96) saturate(0.85)";
+          case "bw":
+            return "grayscale(1) contrast(1.15) brightness(1.03)";
+          case "crisp":
+            return "contrast(1.12) saturate(1.12) brightness(1.06)";
+          default:
+            return "none";
+        }
+      }
+
+      // Camera initialization
+      async function startCamera() {
+        try {
+          if (state.stream) {
+            state.stream.getTracks().forEach((t) => t.stop());
+          }
+          const constraints = {
+            video: {
+              facingMode: state.facingMode,
+              width: { ideal: 1280 },
+              height: { ideal: 960 }
+            },
+            audio: false
+          };
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          state.stream = stream;
+          video.srcObject = stream;
+          await video.play();
+          cameraPlaceholder.classList.add("hidden");
+          startBoothBtn.disabled = false;
+          snapSingleBtn.disabled = false;
+
+          if (navigator.mediaDevices.enumerateDevices) {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const cams = devices.filter((d) => d.kind === "videoinput");
+            switchCameraBtn.style.display = cams.length > 1 ? "inline-flex" : "none";
+          }
+          showToast("Camera ready!");
+        } catch (err) {
+          console.error(err);
+          showToast("Camera unavailable — you can still upload 4 photos!");
+        }
+      }
+
+      // Capture current video frame into an offscreen canvas
+      function captureVideoFrame() {
+        const vw = video.videoWidth || 1280;
+        const vh = video.videoHeight || 960;
+        const c = document.createElement("canvas");
+        c.width = vw;
+        c.height = vh;
+        const cctx = c.getContext("2d");
+
+        cctx.save();
+        try {
+          cctx.filter = getCssFilter(state.filter);
+        } catch (_) {}
+
+        if (state.mirrored) {
+          cctx.translate(vw, 0);
+          cctx.scale(-1, 1);
+        }
+        cctx.drawImage(video, 0, 0, vw, vh);
+        cctx.restore();
+        return c;
+      }
+
+      function triggerFlash() {
+        flashOverlay.classList.remove("flash");
+        void flashOverlay.offsetWidth;
+        flashOverlay.classList.add("flash");
+        playShutterSound();
+      }
+
+      function sleep(ms) {
+        return new Promise((res) => setTimeout(res, ms));
+      }
+
+      async function runCountdown(seconds, label) {
+        if (seconds <= 0) return;
+        countdownOverlay.classList.add("active");
+        countdownSub.textContent = label;
+        for (let i = seconds; i >= 1; i--) {
+          countdownNumber.textContent = i;
+          await sleep(950);
+        }
+        countdownOverlay.classList.remove("active");
+      }
+
+      async function captureToSlot(slotIndex) {
+        if (!state.stream) return;
+        const timerSec = parseInt(timerSelect.value, 10);
+        updateProgressPips(slotIndex);
+        await runCountdown(timerSec, `Photo ${slotIndex + 1} of 4`);
+        triggerFlash();
+        state.photos[slotIndex] = captureVideoFrame();
+        renderSlotsUI();
+        renderStrip();
+      }
+
+      async function startFourShotSequence() {
+        if (state.isCapturingSequence || !state.stream) return;
+        state.isCapturingSequence = true;
+        startBoothBtn.disabled = true;
+        snapSingleBtn.disabled = true;
+
+        if (state.photos.every((p) => p !== null)) {
+          state.photos = [null, null, null, null];
+          renderSlotsUI();
+          renderStrip();
+        }
+
+        for (let i = 0; i < 4; i++) {
+          if (state.photos[i] !== null) continue;
+          await captureToSlot(i);
+          if (i < 3) await sleep(550);
+        }
+
+        updateProgressPips(-1);
+        state.isCapturingSequence = false;
+        startBoothBtn.disabled = false;
+        snapSingleBtn.disabled = false;
+        showToast("Awesome! Your photobooth strip is ready!");
+      }
+
+      function updateProgressPips(activeIndex) {
+        document.querySelectorAll(".shot-pip").forEach((pip, idx) => {
+          pip.classList.remove("done", "active");
+          if (state.photos[idx]) pip.classList.add("done");
+          if (idx === activeIndex) pip.classList.add("active");
+        });
+      }
+
+      // Render 4 slot thumbnails below camera
+      function renderSlotsUI() {
+        slotsGrid.innerHTML = "";
+        let filled = 0;
+
+        state.photos.forEach((photo, idx) => {
+          if (photo) filled++;
+          const card = document.createElement("div");
+          card.className = "slot-card" + (photo ? "" : " empty");
+
+          if (photo) {
+            const img = document.createElement("img");
+            img.src = photo.toDataURL ? photo.toDataURL("image/jpeg", 0.85) : photo.src;
+            img.alt = `Shot ${idx + 1}`;
+            card.appendChild(img);
+          } else {
+            card.innerHTML = `<span>Slot ${idx + 1}</span>`;
+          }
+
+          const actions = document.createElement("div");
+          actions.className = "slot-actions";
+
+          if (state.stream) {
+            const retakeBtn = document.createElement("button");
+            retakeBtn.className = "mini-btn";
+            retakeBtn.textContent = photo ? "Retake" : "Snap";
+            retakeBtn.onclick = async () => {
+              if (state.isCapturingSequence) return;
+              state.isCapturingSequence = true;
+              await captureToSlot(idx);
+              updateProgressPips(-1);
+              state.isCapturingSequence = false;
+            };
+            actions.appendChild(retakeBtn);
+          }
+
+          const upBtn = document.createElement("button");
+          upBtn.className = "mini-btn";
+          upBtn.textContent = "Upload";
+          upBtn.onclick = () => {
+            state.uploadTargetSlot = idx;
+            slotUploadInput.click();
+          };
+          actions.appendChild(upBtn);
+
+          card.appendChild(actions);
+          slotsGrid.appendChild(card);
+        });
+
+        shotCountText.textContent = `${filled} / 4 filled`;
+        updateProgressPips(-1);
+      }
+
+      function loadImageFromFile(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = reader.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function drawImageCover(targetCtx, source, x, y, w, h, applyFilter = false) {
+        const sw = source.width || source.videoWidth;
+        const sh = source.height || source.videoHeight;
+        if (!sw || !sh) return;
+
+        const targetRatio = w / h;
+        const sourceRatio = sw / sh;
+        let sx = 0, sy = 0, sWidth = sw, sHeight = sh;
+
+        if (sourceRatio > targetRatio) {
+          sWidth = sh * targetRatio;
+          sx = (sw - sWidth) / 2;
+        } else {
+          sHeight = sw / targetRatio;
+          sy = (sh - sHeight) / 2;
+        }
+
+        targetCtx.save();
+        if (applyFilter) {
+          try {
+            targetCtx.filter = getCssFilter(state.filter);
+          } catch (_) {}
+        }
+        targetCtx.drawImage(source, sx, sy, sWidth, sHeight, x, y, w, h);
+        targetCtx.restore();
+      }
+
+      // ---------- Frame Background & Ornament Renderers ----------
+
+      function drawCorduroyBackground() {
+        const baseGrad = ctx.createLinearGradient(0, 0, STRIP_W, STRIP_H);
+        baseGrad.addColorStop(0, "#3b060a");
+        baseGrad.addColorStop(0.5, "#4c0a10");
+        baseGrad.addColorStop(1, "#320508");
+        ctx.fillStyle = baseGrad;
+        ctx.fillRect(0, 0, STRIP_W, STRIP_H);
+
+        const ribWidth = 10;
+        for (let x = 0; x < STRIP_W; x += ribWidth) {
+          const ribGrad = ctx.createLinearGradient(x, 0, x + ribWidth, 0);
+          ribGrad.addColorStop(0, "rgba(18, 2, 4, 0.72)");
+          ribGrad.addColorStop(0.35, "rgba(110, 22, 30, 0.42)");
+          ribGrad.addColorStop(0.65, "rgba(130, 28, 36, 0.35)");
+          ribGrad.addColorStop(1, "rgba(18, 2, 4, 0.75)");
+          ctx.fillStyle = ribGrad;
+          ctx.fillRect(x, 0, ribWidth, STRIP_H);
+        }
+
+        ctx.fillStyle = "rgba(0, 0, 0, 0.14)";
+        for (let y = 0; y < STRIP_H; y += 5) {
+          ctx.fillRect(0, y, STRIP_W, 1.5);
+        }
+      }
+
+      function drawGinghamBackground() {
+        ctx.fillStyle = "#c8ac92";
+        ctx.fillRect(0, 0, STRIP_W, STRIP_H);
+
+        const cell = 100;
+        ctx.fillStyle = "rgba(110, 19, 25, 0.68)";
+        for (let x = 0; x < STRIP_W; x += cell * 2) {
+          ctx.fillRect(x, 0, cell, STRIP_H);
+        }
+
+        ctx.fillStyle = "rgba(96, 14, 20, 0.68)";
+        for (let y = 0; y < STRIP_H; y += cell * 2) {
+          ctx.fillRect(0, y, STRIP_W, cell);
+        }
+
+        ctx.save();
+        ctx.strokeStyle = "rgba(35, 6, 8, 0.14)";
+        ctx.lineWidth = 2;
+        for (let i = -STRIP_H; i < STRIP_W + STRIP_H; i += 8) {
+          ctx.beginPath();
+          ctx.moveTo(i, 0);
+          ctx.lineTo(i + STRIP_H, STRIP_H);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawVintageLaceStrip() {
+        ctx.save();
+        const laceW = 148;
+
+        const fade = ctx.createLinearGradient(0, 0, laceW + 18, 0);
+        fade.addColorStop(0, "rgba(235, 232, 226, 0.42)");
+        fade.addColorStop(0.82, "rgba(235, 232, 226, 0.25)");
+        fade.addColorStop(1, "rgba(235, 232, 226, 0)");
+        ctx.fillStyle = fade;
+        ctx.fillRect(0, 0, laceW, STRIP_H);
+
+        ctx.strokeStyle = "rgba(242, 239, 234, 0.26)";
+        ctx.lineWidth = 1;
+        for (let y = -laceW; y < STRIP_H + laceW; y += 14) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(laceW - 10, y + laceW - 10);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(laceW - 10, y);
+          ctx.lineTo(0, y + laceW - 10);
+          ctx.stroke();
+        }
+
+        const stepY = 120;
+        for (let cy = 40; cy < STRIP_H + 60; cy += stepY) {
+          ctx.strokeStyle = "rgba(248, 245, 240, 0.68)";
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.arc(laceW - 18, cy, 24, -Math.PI * 0.45, Math.PI * 0.45);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(laceW - 14, cy + stepY * 0.5, 20, -Math.PI * 0.45, Math.PI * 0.45);
+          ctx.stroke();
+
+          const fx = 62;
+          const fy = cy;
+          ctx.fillStyle = "rgba(245, 242, 236, 0.45)";
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.65)";
+          ctx.lineWidth = 1.4;
+          for (let p = 0; p < 6; p++) {
+            const ang = (p * Math.PI) / 3;
+            const px = fx + Math.cos(ang) * 24;
+            const py = fy + Math.sin(ang) * 24;
+            ctx.beginPath();
+            ctx.ellipse(px, py, 16, 10, ang, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+
+          ctx.beginPath();
+          ctx.arc(fx, fy, 9, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+          ctx.fill();
+
+          const mx = 26;
+          const my = cy + stepY * 0.5;
+          for (let p = 0; p < 5; p++) {
+            const ang = (p * Math.PI * 2) / 5;
+            ctx.beginPath();
+            ctx.arc(mx + Math.cos(ang) * 12, my + Math.sin(ang) * 12, 6, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(242, 238, 232, 0.48)";
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawFivePointStar(cx, cy, outerR, innerR, rotationRad, fillStyle, strokeStyle = null) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rotationRad);
+        ctx.beginPath();
+        for (let i = 0; i < 10; i++) {
+          const r = i % 2 === 0 ? outerR : innerR;
+          const angle = (i * Math.PI) / 5 - Math.PI / 2;
+          const x = Math.cos(angle) * r;
+          const y = Math.sin(angle) * r;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+        if (strokeStyle) {
+          ctx.strokeStyle = strokeStyle;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawGoldSparkleStar(cx, cy, r, rot) {
+        const grad = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
+        grad.addColorStop(0, "#fff2b2");
+        grad.addColorStop(0.45, "#d8af43");
+        grad.addColorStop(1, "#7d5b10");
+        drawFivePointStar(cx, cy, r, r * 0.42, rot, grad, "rgba(255, 244, 194, 0.65)");
+      }
+
+      // Main Strip Renderer
+      function renderStrip() {
+        ctx.clearRect(0, 0, STRIP_W, STRIP_H);
+
+        // 1. Background by selected frame
+        if (state.selectedFrame === "gingham-gold") {
+          drawGinghamBackground();
+        } else {
+          drawCorduroyBackground();
+        }
+
+        if (state.selectedFrame === "corduroy-lace") {
+          drawVintageLaceStrip();
+        }
+
+        // 2. Top Date Header
+        ctx.save();
+        ctx.fillStyle = "#f5ecd7";
+        ctx.font = '500 28px "Cormorant Garamond", Georgia, serif';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        if ("letterSpacing" in ctx) {
+          ctx.letterSpacing = "4px";
+        }
+        ctx.fillText("11.21.2026", STRIP_W / 2, 54);
+        ctx.restore();
+
+        // 3. Draw 4 Cream-Bordered Photo Slots
+        SLOT_BOXES.forEach((box, idx) => {
+          ctx.fillStyle = "#f4ebd7";
+          ctx.fillRect(box.x, box.y, box.w, box.h);
+
+          const ix = box.x + box.border;
+          const iy = box.y + box.border;
+          const iw = box.w - box.border * 2;
+          const ih = box.h - box.border * 2;
+
+          const wellGrad = ctx.createLinearGradient(ix, iy, ix, iy + ih);
+          wellGrad.addColorStop(0, "#1c1c1e");
+          wellGrad.addColorStop(1, "#111113");
+          ctx.fillStyle = wellGrad;
+          ctx.fillRect(ix, iy, iw, ih);
+
+          const photo = state.photos[idx];
+          if (photo) {
+            const isUploadedImg = !(photo instanceof HTMLCanvasElement);
+            drawImageCover(ctx, photo, ix, iy, iw, ih, isUploadedImg);
+          } else {
+            ctx.save();
+            ctx.fillStyle = "rgba(244, 235, 215, 0.22)";
+            ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(`PHOTO ${idx + 1}`, ix + iw / 2, iy + ih / 2);
+            ctx.restore();
+          }
+        });
+
+        // 4. Frame Ornaments (Stars)
+        if (state.selectedFrame === "velvet-stars") {
+          drawFivePointStar(532, 286, 74, 29, 0.12, "#f4ebd7");
+          drawFivePointStar(68, 972, 56, 22, -0.05, "#f4ebd7");
+          drawFivePointStar(530, 1592, 48, 19, 0.25, "#f4ebd7");
+        } else if (state.selectedFrame === "gingham-gold") {
+          drawGoldSparkleStar(42, 290, 26, -0.2);
+          drawGoldSparkleStar(42, 750, 23, 0.15);
+          drawGoldSparkleStar(558, 1130, 24, -0.1);
+          drawGoldSparkleStar(512, 1648, 25, 0.12);
+        }
+
+        // 5. Bottom Event Title in Miss Fajardose
+        ctx.save();
+        const titleText = "Finance Year End Party";
+        let fontSize = 104;
+        const maxTitleWidth = STRIP_W - 48;
+
+        while (fontSize > 48) {
+          ctx.font = `400 ${fontSize}px "Miss Fajardose", cursive`;
+          if (ctx.measureText(titleText).width <= maxTitleWidth) break;
+          fontSize -= 2;
+        }
+
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.48)";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 3;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(titleText, STRIP_W / 2, 1692);
+        ctx.restore();
+
+        // 6. Optional Custom PNG Overlay
+        if (state.customOverlayImg) {
+          ctx.drawImage(state.customOverlayImg, 0, 0, STRIP_W, STRIP_H);
+        }
+      }
+
+      // Event Listeners
+      startCameraBtn.addEventListener("click", startCamera);
+
+      switchCameraBtn.addEventListener("click", () => {
+        state.facingMode = state.facingMode === "user" ? "environment" : "user";
+        state.mirrored = state.facingMode === "user";
+        video.classList.toggle("mirrored", state.mirrored);
+        mirrorToggleBtn.textContent = `Mirror: ${state.mirrored ? "ON" : "OFF"}`;
+        startCamera();
+      });
+
+      mirrorToggleBtn.addEventListener("click", () => {
+        state.mirrored = !state.mirrored;
+        video.classList.toggle("mirrored", state.mirrored);
+        mirrorToggleBtn.textContent = `Mirror: ${state.mirrored ? "ON" : "OFF"}`;
+      });
+
+      filterSelect.addEventListener("change", () => {
+        state.filter = filterSelect.value;
+        video.style.filter = getCssFilter(state.filter);
+        renderStrip();
+      });
+
+      startBoothBtn.addEventListener("click", startFourShotSequence);
+
+      snapSingleBtn.addEventListener("click", async () => {
+        if (state.isCapturingSequence || !state.stream) return;
+        const nextIdx = state.photos.findIndex((p) => p === null);
+        if (nextIdx === -1) {
+          showToast("All 4 slots are full! Click Retake on any slot or Reset All.");
+          return;
+        }
+        state.isCapturingSequence = true;
+        await captureToSlot(nextIdx);
+        updateProgressPips(-1);
+        state.isCapturingSequence = false;
+      });
+
+      clearAllBtn.addEventListener("click", () => {
+        if (state.isCapturingSequence) return;
+        state.photos = [null, null, null, null];
+        renderSlotsUI();
+        renderStrip();
+        showToast("Cleared all 4 photos");
+      });
+
+      // Slot single upload
+      slotUploadInput.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const img = await loadImageFromFile(file);
+          state.photos[state.uploadTargetSlot] = img;
+          renderSlotsUI();
+          renderStrip();
+          showToast(`Updated Photo ${state.uploadTargetSlot + 1}`);
+        } catch {
+          showToast("Could not load that image.");
+        }
+        slotUploadInput.value = "";
+      });
+
+      // Batch upload up to 4 photos
+      uploadAllBtn.addEventListener("click", () => batchUploadInput.click());
+      batchUploadInput.addEventListener("change", async (e) => {
+        const files = Array.from(e.target.files || []).slice(0, 4);
+        if (!files.length) return;
+        for (let i = 0; i < files.length; i++) {
+          state.photos[i] = await loadImageFromFile(files[i]);
+        }
+        renderSlotsUI();
+        renderStrip();
+        showToast(`Loaded ${files.length} photo(s)!`);
+        batchUploadInput.value = "";
+      });
+
+      // Frame picker
+      framePicker.addEventListener("click", (e) => {
+        const option = e.target.closest(".frame-option");
+        if (!option) return;
+        document.querySelectorAll(".frame-option").forEach((el) => el.classList.remove("selected"));
+        option.classList.add("selected");
+        state.selectedFrame = option.dataset.frame;
+        renderStrip();
+      });
+
+      // Custom PNG overlay upload
+      uploadCustomOverlayBtn.addEventListener("click", () => customFrameInput.click());
+      customFrameInput.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          state.customOverlayImg = await loadImageFromFile(file);
+          clearCustomOverlayBtn.style.display = "inline-flex";
+          renderStrip();
+          showToast("Custom PNG overlay applied!");
+        } catch {
+          showToast("Failed to load overlay PNG.");
+        }
+        customFrameInput.value = "";
+      });
+
+      clearCustomOverlayBtn.addEventListener("click", () => {
+        state.customOverlayImg = null;
+        clearCustomOverlayBtn.style.display = "none";
+        renderStrip();
+        showToast("Custom overlay removed");
+      });
+
+      // Download strip PNG
+      downloadStripBtn.addEventListener("click", () => {
+        const dataUrl = stripCanvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = `Finance-Year-End-Party-2026-${Date.now()}.png`;
+        link.href = dataUrl;
+        link.click();
+        showToast("Photobooth strip downloaded!");
+      });
+
+      // Share strip via Web Share API (fallback to download)
+      shareStripBtn.addEventListener("click", async () => {
+        stripCanvas.toBlob(async (blob) => {
+          if (!blob) return;
+          const file = new File([blob], "Finance-Year-End-Party-2026.png", { type: "image/png" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: "Finance Year End Party",
+                text: "Memories from our Finance Year End Party in Subic, Zambales! (11.21.2026)",
+                files: [file]
+              });
+              return;
+            } catch (_) {}
+          }
+          downloadStripBtn.click();
+        }, "image/png");
+      });
+
+      // Save strip to session gallery
+      saveToGalleryBtn.addEventListener("click", () => {
+        const dataUrl = stripCanvas.toDataURL("image/png");
+        state.gallery.unshift(dataUrl);
+        renderGallery();
+        showToast("Pinned to Party Session Gallery!");
+      });
+
+      function renderGallery() {
+        gallerySection.style.display = state.gallery.length ? "block" : "none";
+        galleryCount.textContent = `${state.gallery.length} Strip${state.gallery.length === 1 ? "" : "s"}`;
+        galleryGrid.innerHTML = "";
+
+        state.gallery.forEach((url, index) => {
+          const item = document.createElement("div");
+          item.className = "gallery-item";
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = `Saved strip ${index + 1}`;
+
+          const dlBtn = document.createElement("a");
+          dlBtn.href = url;
+          dlBtn.download = `Finance-YEP-Strip-${state.gallery.length - index}.png`;
+          dlBtn.className = "btn btn-sm";
+          dlBtn.textContent = "⬇ Save";
+          dlBtn.style.width = "100%";
+
+          item.appendChild(img);
+          item.appendChild(dlBtn);
+          galleryGrid.appendChild(item);
+        });
+      }
+
+      // Initial render + explicit font preload for canvas
+      renderSlotsUI();
+      renderStrip();
+      if (document.fonts) {
+        Promise.all([
+          document.fonts.load('400 96px "Miss Fajardose"'),
+          document.fonts.load('500 28px "Cormorant Garamond"'),
+          document.fonts.ready
+        ])
+          .then(() => renderStrip())
+          .catch(() => renderStrip());
+      }
+    })();
+  </script>
+</body>
+</html>
